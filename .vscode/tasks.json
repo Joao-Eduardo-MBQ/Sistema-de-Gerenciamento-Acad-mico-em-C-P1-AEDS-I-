@@ -1,0 +1,31 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Build sistema academico",
+            "command": "C:/msys64/ucrt64/bin/gcc.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-Wall",
+                "-Wextra",
+                "-I${workspaceFolder}/include",
+                "${workspaceFolder}/src/*.c",
+                "-o",
+                "${workspaceFolder}/sistema.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compila todos os arquivos .c da pasta src"
+        }
+    ]
+}
