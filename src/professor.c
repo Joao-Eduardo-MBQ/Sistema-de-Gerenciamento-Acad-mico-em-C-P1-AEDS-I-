@@ -22,16 +22,15 @@ int iniciarProfessor(Professor *p, int matricula, const char *nome,
         return 0;
     }
 
-    if(!emailValido(email)){
-        printf("E-mail invalido.\n");
-        return 0;
-    }
 
     memset(p, 0, sizeof(*p));
     p->matricula = matricula;
-    copiarStr(p->nome,        sizeof(p->nome),        nome);
-    copiarStr(p->areaAtuacao, sizeof(p->areaAtuacao), area);
-    copiarStr(p->email,       sizeof(p->email),       email);
+    strncpy(p->nome, nome, sizeof(p->nome) - 1);
+    p->nome[sizeof(p->nome) - 1] = '\0';
+    strncpy(p->areaAtuacao, area, sizeof(p->areaAtuacao) - 1);
+    p->areaAtuacao[sizeof(p->areaAtuacao) - 1] = '\0';
+    strncpy(p->email, email, sizeof(p->email) - 1);
+    p->email[sizeof(p->email) - 1] = '\0';
     return 1;
 }
 
@@ -101,15 +100,14 @@ int editarProfessor(VetorProfessores *v, int matricula, const char *nome,
         return 0;
     }
 
-    if(!emailValido(email)){
-        printf("E-mail invalido.\n");
-        return 0;
-    }
 
     Professor *p = &v->dados[i];
-    copiarStr(p->nome,        sizeof(p->nome),        nome);
-    copiarStr(p->areaAtuacao, sizeof(p->areaAtuacao), area);
-    copiarStr(p->email,       sizeof(p->email),       email);
+    strncpy(p->nome, nome, sizeof(p->nome) - 1);
+    p->nome[sizeof(p->nome) - 1] = '\0';
+    strncpy(p->areaAtuacao, area, sizeof(p->areaAtuacao) - 1);
+    p->areaAtuacao[sizeof(p->areaAtuacao) - 1] = '\0';
+    strncpy(p->email, email, sizeof(p->email) - 1);
+    p->email[sizeof(p->email) - 1] = '\0';
     return 1;
 }
 

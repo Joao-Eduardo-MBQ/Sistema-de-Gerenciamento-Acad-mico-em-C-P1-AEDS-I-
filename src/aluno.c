@@ -22,17 +22,17 @@ int iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso,
         return 0;
     }
 
-    if(!emailValido(email)){
-        printf("E-mail invalido.\n");
-        return 0;
-    }
 
     memset(a, 0, sizeof(*a));
     a->matricula = matricula;
-    copiarStr(a->nome,    sizeof(a->nome),    nome);
-    copiarStr(a->curso,   sizeof(a->curso),   curso);
-    copiarStr(a->periodo, sizeof(a->periodo), periodo);
-    copiarStr(a->email,   sizeof(a->email),   email);
+    strncpy(a->nome, nome, sizeof(a->nome) - 1);
+    a->nome[sizeof(a->nome) - 1] = '\0';
+    strncpy(a->curso, curso, sizeof(a->curso) - 1);
+    a->curso[sizeof(a->curso) - 1] = '\0';
+    strncpy(a->periodo, periodo, sizeof(a->periodo) - 1);
+    a->periodo[sizeof(a->periodo) - 1] = '\0';
+    strncpy(a->email, email, sizeof(a->email) - 1);
+    a->email[sizeof(a->email) - 1] = '\0';
     return 1;
 }
 
@@ -102,16 +102,16 @@ int editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *cur
         return 0;
     }
 
-    if(!emailValido(email)){
-        printf("E-mail invalido.\n");
-        return 0;
-    }
 
     Aluno *a = &v->dados[i];
-    copiarStr(a->nome,    sizeof(a->nome),    nome);
-    copiarStr(a->curso,   sizeof(a->curso),   curso);
-    copiarStr(a->periodo, sizeof(a->periodo), periodo);
-    copiarStr(a->email,   sizeof(a->email),   email);
+    strncpy(a->nome, nome, sizeof(a->nome) - 1);
+    a->nome[sizeof(a->nome) - 1] = '\0';
+    strncpy(a->curso, curso, sizeof(a->curso) - 1);
+    a->curso[sizeof(a->curso) - 1] = '\0';
+    strncpy(a->periodo, periodo, sizeof(a->periodo) - 1);
+    a->periodo[sizeof(a->periodo) - 1] = '\0';
+    strncpy(a->email, email, sizeof(a->email) - 1);
+    a->email[sizeof(a->email) - 1] = '\0';
     return 1;
 }
 

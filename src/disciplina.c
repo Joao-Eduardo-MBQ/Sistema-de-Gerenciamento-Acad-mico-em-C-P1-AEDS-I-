@@ -34,9 +34,11 @@ int iniciarDisciplina(Disciplina *d, int codigo, const char *nome, int cargaHora
 
     memset(d, 0, sizeof(*d));
     d->codigo = codigo;
-    copiarStr(d->nome,    sizeof(d->nome),    nome);
+    strncpy(d->nome, nome, sizeof(d->nome) - 1);
+    d->nome[sizeof(d->nome) - 1] = '\0';
     d->cargaHoraria = cargaHoraria;
-    copiarStr(d->periodo, sizeof(d->periodo), periodo);
+    strncpy(d->periodo, periodo, sizeof(d->periodo) - 1);
+    d->periodo[sizeof(d->periodo) - 1] = '\0';
     d->vagas = vagas;
     d->qtdPrereq = 0;
     return 1;
@@ -139,8 +141,10 @@ int editarDisciplina(VetorDisciplinas *vd, int codigo, const char *nome, int car
     }
 
     Disciplina *d = &vd->dados[i];
-    copiarStr(d->nome,    sizeof(d->nome),    nome);
-    copiarStr(d->periodo, sizeof(d->periodo), periodo);
+    strncpy(d->nome, nome, sizeof(d->nome) - 1);
+    d->nome[sizeof(d->nome) - 1] = '\0';
+    strncpy(d->periodo, periodo, sizeof(d->periodo) - 1);
+    d->periodo[sizeof(d->periodo) - 1] = '\0';
     d->cargaHoraria = cargaHoraria;
     d->vagas = vagas;
     return 1;

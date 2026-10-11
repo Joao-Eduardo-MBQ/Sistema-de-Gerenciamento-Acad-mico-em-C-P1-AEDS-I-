@@ -175,7 +175,8 @@ int matricularAluno(VetorMatriculas *vm, const VetorAlunos *va, const VetorTurma
     memset(m, 0, sizeof(*m));
     m->matAluno = matAluno;
     m->codTurma = codTurma;
-    copiarStr(m->semestre, sizeof(m->semestre), semestre);
+    strncpy(m->semestre, semestre, sizeof(m->semestre) - 1);
+    m->semestre[sizeof(m->semestre) - 1] = '\0';
     m->situacao = SIT_CURSANDO;
     vm->tamanho++;
     return 1;

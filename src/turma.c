@@ -82,8 +82,10 @@ int cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfe
     t->codigo = codigo;
     t->codDisciplina = codDisciplina;
     t->matProfessor = matProfessor;
-    copiarStr(t->horario, sizeof(t->horario), horario);
-    copiarStr(t->sala,    sizeof(t->sala),    sala);
+    strncpy(t->horario, horario, sizeof(t->horario) - 1);
+    t->horario[sizeof(t->horario) - 1] = '\0';
+    strncpy(t->sala, sala, sizeof(t->sala) - 1);
+    t->sala[sizeof(t->sala) - 1] = '\0';
     t->vagas = vagas;
     vt->tamanho++;
     return 1;
