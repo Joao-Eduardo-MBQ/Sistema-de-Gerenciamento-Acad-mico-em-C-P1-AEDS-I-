@@ -20,7 +20,6 @@ const char *nomeSituacao(Situacao s){
     return "?";
 }
 
-/* ultima matricula (nao cancelada) do aluno na turma */
 int buscarMatricula(const VetorMatriculas *vm, int matAluno, int codTurma){
     if(vm == NULL){
         return -1;
@@ -36,9 +35,7 @@ int buscarMatricula(const VetorMatriculas *vm, int matAluno, int codTurma){
     return -1;
 }
 
-/* o aluno tem alguma matricula com a situacao s em turmas desta disciplina? */
-static int alunoTemSituacaoNaDisciplina(const VetorMatriculas *vm, const VetorTurmas *vt,
-                                        int matAluno, int codDisc, Situacao s){
+static int alunoTemSituacaoNaDisciplina(const VetorMatriculas *vm, const VetorTurmas *vt, int matAluno, int codDisc, Situacao s){
     for(int i = 0; i < vm->tamanho; i++){
         const Matricula *m = &vm->dados[i];
         if(m->matAluno != matAluno || m->situacao != s){
@@ -95,9 +92,7 @@ void removerMatriculasDoAluno(VetorMatriculas *vm, int matAluno){
     vm->tamanho = k;
 }
 
-int matricularAluno(VetorMatriculas *vm, const VetorAlunos *va, const VetorTurmas *vt,
-                    const VetorDisciplinas *vd, int matAluno, int codTurma,
-                    const char *semestre){
+int matricularAluno(VetorMatriculas *vm, const VetorAlunos *va, const VetorTurmas *vt, const VetorDisciplinas *vd, int matAluno, int codTurma, const char *semestre){
     if(vm == NULL || va == NULL || vt == NULL || vd == NULL || semestre == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
@@ -132,14 +127,12 @@ int matricularAluno(VetorMatriculas *vm, const VetorAlunos *va, const VetorTurma
         return 0;
     }
 
-    /* pre-requisitos: o aluno precisa ter sido aprovado em todos */
     int faltando = 0;
     for(int k = 0; k < disc->qtdPrereq; k++){
         int cod = disc->prerequisitos[k];
         if(!alunoTemSituacaoNaDisciplina(vm, vt, matAluno, cod, SIT_APROVADO)){
             int p = buscarDisciplina(vd, cod);
-            printf("Pre-requisito nao cumprido: %d - %s\n", cod,
-                   p != -1 ? vd->dados[p].nome : "(removida)");
+            printf("Pre-requisito nao cumprido: %d - %s\n", cod, p != -1 ? vd->dados[p].nome : "(removida)");
             faltando = 1;
         }
     }
@@ -147,7 +140,6 @@ int matricularAluno(VetorMatriculas *vm, const VetorAlunos *va, const VetorTurma
         return 0;
     }
 
-    /* conflito de horario com turmas que o aluno esta cursando */
     for(int i = 0; i < vm->tamanho; i++){
         const Matricula *m = &vm->dados[i];
         if(m->matAluno != matAluno || m->situacao != SIT_CURSANDO){
@@ -203,7 +195,6 @@ int cancelarMatricula(VetorMatriculas *vm, int matAluno, int codTurma){
     return 1;
 }
 
-/* define a situacao: so decide aprovado/reprovado quando nota e frequencia existem */
 static void atualizarSituacao(Matricula *m){
     if(m->situacao == SIT_CANCELADO){
         return;
@@ -269,16 +260,15 @@ int registrarFrequencia(VetorMatriculas *vm, int matAluno, int codTurma, float f
 /* ----------------------------- consultas ----------------------------- */
 
 static void imprimirLinha(const Matricula *m, const VetorTurmas *vt, const VetorDisciplinas *vd){
-    char disc[96] = "(turma removida)";
-    char nota[48] = "-";
-    char freq[48] = "-";
+    char disc[90] = "(turma removida)";
+    char nota[50] = "-";
+    char freq[50] = "-";
 
     int t = buscarTurma(vt, m->codTurma);
     if(t != -1){
         int cod = vt->dados[t].codDisciplina;
         int d = buscarDisciplina(vd, cod);
-        snprintf(disc, sizeof(disc), "%d - %s", cod,
-                 d != -1 ? vd->dados[d].nome : "(removida)");
+        snprintf(disc, sizeof(disc), "%d - %s", cod, d != -1 ? vd->dados[d].nome : "(removida)");
     }
 
     if(m->notaLancada){
@@ -288,8 +278,7 @@ static void imprimirLinha(const Matricula *m, const VetorTurmas *vt, const Vetor
         snprintf(freq, sizeof(freq), "%.1f%%", m->frequencia);
     }
 
-    printf("%s | Turma %d | %s | Nota: %s | Freq.: %s | %s\n",
-           m->semestre, m->codTurma, disc, nota, freq, nomeSituacao(m->situacao));
+    printf("%s | Turma %d | %s | Nota: %s | Freq.: %s | %s\n", m->semestre, m->codTurma, disc, nota, freq, nomeSituacao(m->situacao));
 }
 
 void consultarSituacaoAcademica(const VetorMatriculas *vm, const VetorAlunos *va, int matAluno){
@@ -332,8 +321,7 @@ void consultarSituacaoAcademica(const VetorMatriculas *vm, const VetorAlunos *va
     }
 }
 
-void listarAlunosTurma(const VetorMatriculas *vm, const VetorAlunos *va,
-                       const VetorTurmas *vt, int codTurma){
+void listarAlunosTurma(const VetorMatriculas *vm, const VetorAlunos *va, const VetorTurmas *vt, int codTurma){
     if(vm == NULL || va == NULL || vt == NULL){
         printf("Erro: dados invalidos.\n");
         return;
@@ -353,8 +341,7 @@ void listarAlunosTurma(const VetorMatriculas *vm, const VetorAlunos *va,
         }
 
         int a = buscarA(va, m->matAluno);
-        printf("  %d - %s | %s\n", m->matAluno,
-               a != -1 ? va->dados[a].nome : "(removido)", nomeSituacao(m->situacao));
+        printf("  %d - %s | %s\n", m->matAluno, a != -1 ? va->dados[a].nome : "(removido)", nomeSituacao(m->situacao));
         n++;
     }
 
@@ -363,8 +350,7 @@ void listarAlunosTurma(const VetorMatriculas *vm, const VetorAlunos *va,
     }
 }
 
-void listarDisciplinasAluno(const VetorMatriculas *vm, const VetorAlunos *va,
-                            const VetorTurmas *vt, const VetorDisciplinas *vd, int matAluno){
+void listarDisciplinasAluno(const VetorMatriculas *vm, const VetorAlunos *va, const VetorTurmas *vt, const VetorDisciplinas *vd, int matAluno){
     if(vm == NULL || va == NULL || vt == NULL || vd == NULL){
         printf("Erro: dados invalidos.\n");
         return;
@@ -391,9 +377,7 @@ void listarDisciplinasAluno(const VetorMatriculas *vm, const VetorAlunos *va,
 
         const Turma *turma = &vt->dados[t];
         int d = buscarDisciplina(vd, turma->codDisciplina);
-        printf("  %d - %s | Turma %d | %s | Sala %s\n", turma->codDisciplina,
-               d != -1 ? vd->dados[d].nome : "(removida)", turma->codigo,
-               turma->horario, turma->sala);
+        printf("  %d - %s | Turma %d | %s | Sala %s\n", turma->codDisciplina, d != -1 ? vd->dados[d].nome : "(removida)", turma->codigo, turma->horario, turma->sala);
         n++;
     }
 
@@ -402,8 +386,7 @@ void listarDisciplinasAluno(const VetorMatriculas *vm, const VetorAlunos *va,
     }
 }
 
-void historicoAcademico(const VetorMatriculas *vm, const VetorAlunos *va,
-                        const VetorTurmas *vt, const VetorDisciplinas *vd, int matAluno){
+void historicoAcademico(const VetorMatriculas *vm, const VetorAlunos *va, const VetorTurmas *vt, const VetorDisciplinas *vd, int matAluno){
     if(vm == NULL || va == NULL || vt == NULL || vd == NULL){
         printf("Erro: dados invalidos.\n");
         return;

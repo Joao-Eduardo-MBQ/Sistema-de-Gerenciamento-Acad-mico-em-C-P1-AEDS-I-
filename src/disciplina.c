@@ -10,8 +10,7 @@ void iniciarVetorDisciplinas(VetorDisciplinas *vd){
     vd->tamanho = 0;
 }
 
-int iniciarDisciplina(Disciplina *d, int codigo, const char *nome, int cargaHoraria,
-                      const char *periodo, int vagas){
+int iniciarDisciplina(Disciplina *d, int codigo, const char *nome, int cargaHoraria, const char *periodo, int vagas){
     if(d == NULL || nome == NULL || periodo == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
@@ -117,8 +116,7 @@ int removerDisciplina(VetorDisciplinas *vd, int codigo){
     return 1;
 }
 
-int editarDisciplina(VetorDisciplinas *vd, int codigo, const char *nome, int cargaHoraria,
-                     const char *periodo, int vagas){
+int editarDisciplina(VetorDisciplinas *vd, int codigo, const char *nome, int cargaHoraria, const char *periodo, int vagas){
     if(vd == NULL || nome == NULL || periodo == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
@@ -181,7 +179,6 @@ void listarDisciplinas(const VetorDisciplinas *vd){
 
 /* ------------------------- pre-requisitos ------------------------- */
 
-/* a exige (direta ou indiretamente) b? */
 static int dependeDe(const VetorDisciplinas *vd, int a, int b){
     int i = buscarDisciplina(vd, a);
     if(i == -1){
@@ -292,7 +289,6 @@ void listarPrerequisitos(const VetorDisciplinas *vd, int codigo){
 
     for(int k = 0; k < d->qtdPrereq; k++){
         int p = buscarDisciplina(vd, d->prerequisitos[k]);
-        printf("  %d - %s\n", d->prerequisitos[k],
-               p != -1 ? vd->dados[p].nome : "(removida)");
+        printf("  %d - %s\n", d->prerequisitos[k], p != -1 ? vd->dados[p].nome : "(removida)");
     }
 }

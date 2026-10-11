@@ -23,9 +23,7 @@ int buscarTurma(const VetorTurmas *vt, int codigo){
     return -1;
 }
 
-int cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfessores *vp,
-                   int codigo, int codDisciplina, int matProfessor,
-                   const char *horario, const char *sala, int vagas){
+int cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfessores *vp, int codigo, int codDisciplina, int matProfessor, const char *horario, const char *sala, int vagas){
     if(vt == NULL || vd == NULL || vp == NULL || horario == NULL || sala == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
@@ -61,7 +59,6 @@ int cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfe
         return 0;
     }
 
-    /* conflitos de horario */
     for(int i = 0; i < vt->tamanho; i++){
         const Turma *o = &vt->dados[i];
         if(strcmp(o->horario, horario) != 0){
@@ -110,8 +107,7 @@ int removerTurma(VetorTurmas *vt, int codigo){
     return 1;
 }
 
-void imprimirTurma(const Turma *t, const VetorDisciplinas *vd, const VetorProfessores *vp,
-                   int ocupadas){
+void imprimirTurma(const Turma *t, const VetorDisciplinas *vd, const VetorProfessores *vp, int ocupadas){
     const char *nomeDisc = "(removida)";
     const char *nomeProf = "(removido)";
 
@@ -125,9 +121,7 @@ void imprimirTurma(const Turma *t, const VetorDisciplinas *vd, const VetorProfes
         nomeProf = vp->dados[p].nome;
     }
 
-    printf("Turma %d | Disciplina: %d - %s | Prof.: %s | Horario: %s | Sala: %s | Vagas: %d/%d\n",
-           t->codigo, t->codDisciplina, nomeDisc, nomeProf, t->horario, t->sala,
-           ocupadas, t->vagas);
+    printf("Turma %d | Disciplina: %d - %s | Prof.: %s | Horario: %s | Sala: %s | Vagas: %d/%d\n", t->codigo, t->codDisciplina, nomeDisc, nomeProf, t->horario, t->sala, ocupadas, t->vagas);
 }
 
 int professorTemTurma(const VetorTurmas *vt, int matProfessor){

@@ -3,7 +3,6 @@
 #include "util.h"
 #include "aluno.h"
 
-/* fila circular de atendimento da secretaria (guarda a matricula do aluno) */
 typedef struct {
     int dados[MAX_FILA];
     int inicio;

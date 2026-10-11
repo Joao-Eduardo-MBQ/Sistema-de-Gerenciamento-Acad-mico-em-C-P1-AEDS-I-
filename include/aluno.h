@@ -16,13 +16,11 @@ typedef struct {
 } VetorAlunos;
 
 void iniciarA(VetorAlunos *v);
-int  iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso,
-                  const char *periodo, const char *email);
+int  iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso, const char *periodo, const char *email);
 int  inserirA(VetorAlunos *v, Aluno a);
 int  removerA(VetorAlunos *v, int matricula);
 int  buscarA(const VetorAlunos *v, int matricula);
-int  editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *curso,
-                 const char *periodo, const char *email);
+int  editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *curso, const char *periodo, const char *email);
 void imprimirAluno(const Aluno *a);
 void listarA(const VetorAlunos *v);
 

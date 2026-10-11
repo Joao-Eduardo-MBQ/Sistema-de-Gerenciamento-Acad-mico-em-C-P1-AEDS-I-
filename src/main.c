@@ -7,7 +7,6 @@
 #include "../include/matricula.h"
 #include "../include/fila.h"
 
-/* Todo o estado do sistema em um unico lugar */
 typedef struct {
     VetorAlunos      alunos;
     VetorProfessores professores;
@@ -17,10 +16,6 @@ typedef struct {
     FilaAtendimento  fila;
 } Sistema;
 
-/* Convencao: as funcoes dos modulos imprimem os ERROS;
-   os menus imprimem as mensagens de SUCESSO. */
-
-/* le a opcao do menu; se digitar letra, descarta a linha e devolve -1 */
 static int lerOpcao(void){
     int op = -1;
     int r = scanf("%d", &op);
@@ -193,13 +188,12 @@ static void menuDisciplina(Sistema *s){
             scanf(" %49[^\n]", nome);
             printf("Carga horaria (h): ");
             scanf("%d", &carga);
-            printf("Periodo (ex.: 2026.1): ");
+            printf("Periodo (ex.: 2°, 3°...): ");
             scanf(" %9[^\n]", periodo);
             printf("Numero de vagas: ");
             scanf("%d", &vagas);
 
-            if(iniciarDisciplina(&d, cod, nome, carga, periodo, vagas) &&
-               inserirDisciplina(&s->disciplinas, d)){
+            if(iniciarDisciplina(&d, cod, nome, carga, periodo, vagas) && inserirDisciplina(&s->disciplinas, d)){
                 printf("Disciplina cadastrada.\n");
             }
             break;
@@ -536,11 +530,10 @@ static void menuMatricula(Sistema *s){
             scanf("%d", &mat);
             printf("Codigo da turma: ");
             scanf("%d", &turma);
-            printf("Semestre (ex.: 2026.1): ");
+            printf("Semestre (ex.: 2°, 3° ...): ");
             scanf(" %9[^\n]", semestre);
 
-            if(matricularAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas,
-                               mat, turma, semestre)){
+            if(matricularAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas, mat, turma, semestre)){
                 printf("Aluno matriculado.\n");
             }
             break;
@@ -573,8 +566,7 @@ static void menuMatricula(Sistema *s){
 
             if(registrarNota(&s->matriculas, mat, turma, nota)){
                 int i = buscarMatricula(&s->matriculas, mat, turma);
-                printf("Nota registrada. Situacao: %s\n",
-                       nomeSituacao(s->matriculas.dados[i].situacao));
+                printf("Nota registrada. Situacao: %s\n", nomeSituacao(s->matriculas.dados[i].situacao));
             }
             break;
         }
@@ -592,8 +584,7 @@ static void menuMatricula(Sistema *s){
 
             if(registrarFrequencia(&s->matriculas, mat, turma, freq)){
                 int i = buscarMatricula(&s->matriculas, mat, turma);
-                printf("Frequencia registrada. Situacao: %s\n",
-                       nomeSituacao(s->matriculas.dados[i].situacao));
+                printf("Frequencia registrada. Situacao: %s\n", nomeSituacao(s->matriculas.dados[i].situacao));
             }
             break;
         }

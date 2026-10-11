@@ -24,7 +24,7 @@ int filaContem(const FilaAtendimento *f, int matricula){
     }
 
     for(int i = 0; i < f->tamanho; i++){
-        if(f->dados[(f->inicio + i) % MAX_FILA] == matricula){
+        if(f->dados[i] == matricula){
             return 1;
         }
     }

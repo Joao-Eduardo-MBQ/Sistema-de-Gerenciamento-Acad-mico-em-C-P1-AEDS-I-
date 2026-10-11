@@ -10,8 +10,7 @@ void iniciarA(VetorAlunos *v){
     v->tamanho = 0;
 }
 
-int iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso,
-                 const char *periodo, const char *email){
+int iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso, const char *periodo, const char *email){
     if(a == NULL || nome == NULL || curso == NULL || periodo == NULL || email == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
@@ -89,8 +88,7 @@ int buscarA(const VetorAlunos *v, int matricula){
     return -1;
 }
 
-int editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *curso,
-                const char *periodo, const char *email){
+int editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *curso, const char *periodo, const char *email){
     if(v == NULL || nome == NULL || curso == NULL || periodo == NULL || email == NULL){
         printf("Erro: dados invalidos.\n");
         return 0;
