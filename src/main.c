@@ -188,7 +188,7 @@ static void menuDisciplina(Sistema *s){
             scanf(" %49[^\n]", nome);
             printf("Carga horaria (h): ");
             scanf("%d", &carga);
-            printf("Periodo (ex.: 2°, 3°...): ");
+            printf("Periodo (ex.: 2, 3...): ");
             scanf(" %9[^\n]", periodo);
             printf("Numero de vagas: ");
             scanf("%d", &vagas);
@@ -530,7 +530,7 @@ static void menuMatricula(Sistema *s){
             scanf("%d", &mat);
             printf("Codigo da turma: ");
             scanf("%d", &turma);
-            printf("Semestre (ex.: 2°, 3° ...): ");
+            printf("Semestre (ex.: 2, 3 ...): ");
             scanf(" %9[^\n]", semestre);
 
             if(matricularAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas, mat, turma, semestre)){

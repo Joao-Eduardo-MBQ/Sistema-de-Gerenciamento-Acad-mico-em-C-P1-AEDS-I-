@@ -27,8 +27,7 @@ int buscarMatricula(const VetorMatriculas *vm, int matAluno, int codTurma){
 
     for(int i = vm->tamanho - 1; i >= 0; i--){
         const Matricula *m = &vm->dados[i];
-        if(m->matAluno == matAluno && m->codTurma == codTurma &&
-           m->situacao != SIT_CANCELADO){
+        if(m->matAluno == matAluno && m->codTurma == codTurma && m->situacao != SIT_CANCELADO){
             return i;
         }
     }
