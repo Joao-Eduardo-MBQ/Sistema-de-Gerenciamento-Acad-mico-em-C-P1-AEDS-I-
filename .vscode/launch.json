@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": ".",
-      "program": "build/Debug/outDebug",
+      "cwd": "c:/Users/joaoq/Downloads/setup & laucher/Sistema-de-Gerenciamento-Acad-mico-em-C-P1-AEDS-I--main/include",
+      "program": "c:/Users/joaoq/Downloads/setup & laucher/Sistema-de-Gerenciamento-Acad-mico-em-C-P1-AEDS-I--main/include/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

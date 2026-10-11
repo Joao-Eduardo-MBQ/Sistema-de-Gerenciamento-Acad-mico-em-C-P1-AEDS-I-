@@ -2,16 +2,11 @@
 #define PROFESSOR_H_INCLUDED
 #include "util.h"
 
-typedef struct{
-    char nomeD[TAM_DISCIPLINA];
-    char horario[TAM_HORARIO];
-} Aula;
-
 typedef struct {
-    int  registro;
-    char nomeP[TAM_NOME];
-    int  qtdAulas;
-    Aula aulas[MAX_AULAS];
+    int  matricula;
+    char nome[TAM_NOME];
+    char areaAtuacao[TAM_AREA];
+    char email[TAM_EMAIL];
 } Professor;
 
 typedef struct {
@@ -20,13 +15,14 @@ typedef struct {
 } VetorProfessores;
 
 void iniciarP(VetorProfessores *v);
+int  iniciarProfessor(Professor *p, int matricula, const char *nome,
+                      const char *area, const char *email);
 int  inserirP(VetorProfessores *v, Professor p);
-int  removerP(VetorProfessores *v, int registro);
-int  buscarP(VetorProfessores *v, int registro);
-void listarP(VetorProfessores *v);
-
-int  editarProfessor(VetorProfessores *v, int registro, const char *nNome);
-int  adicionarAula(VetorProfessores *v, int registro, const char *disciplina, const char *horario);
-int  removerAula(VetorProfessores *v, int registro, const char *disciplina);
+int  removerP(VetorProfessores *v, int matricula);
+int  buscarP(const VetorProfessores *v, int matricula);
+int  editarProfessor(VetorProfessores *v, int matricula, const char *nome,
+                     const char *area, const char *email);
+void imprimirProfessor(const Professor *p);
+void listarP(const VetorProfessores *v);
 
 #endif

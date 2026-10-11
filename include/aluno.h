@@ -3,18 +3,11 @@
 #include "util.h"
 
 typedef struct {
-    char  nomeD[TAM_DISCIPLINA];
-    float notas[MAX_PROVAS];
-    int   qtdN;
-} Disciplina;
-
-typedef struct {
-    int        matricula;
-    char       nomeA[TAM_NOME];
-    int        idadeA;
-    char       curso[TAM_CURSO];
-    int        qtdD;
-    Disciplina ds[MAX_DISCIPLINAS];
+    int  matricula;
+    char nome[TAM_NOME];
+    char curso[TAM_CURSO];
+    char periodo[TAM_PERIODO];
+    char email[TAM_EMAIL];
 } Aluno;
 
 typedef struct {
@@ -22,15 +15,15 @@ typedef struct {
     int   tamanho;
 } VetorAlunos;
 
-void  iniciarA(VetorAlunos *v);
-int   inserirA(VetorAlunos *v, Aluno a);
-int   removerA(VetorAlunos *v, int matricula);
-int   buscarA(VetorAlunos *v, int matricula);
-void  listarA(VetorAlunos *v);
-
-int   editarAluno(VetorAlunos *v, int matricula, const char *nNome, int nIdade, const char *nCurso);
-int   adicionarDisciplina(VetorAlunos *v, int matricula, const char *nomeDisc);
-int   removerDisciplina(VetorAlunos *v, int matricula, const char *nomeDisc);
-int   lancarNota(VetorAlunos *v, int matricula, const char *nomeDisc, int prova, float nota);
+void iniciarA(VetorAlunos *v);
+int  iniciarAluno(Aluno *a, int matricula, const char *nome, const char *curso,
+                  const char *periodo, const char *email);
+int  inserirA(VetorAlunos *v, Aluno a);
+int  removerA(VetorAlunos *v, int matricula);
+int  buscarA(const VetorAlunos *v, int matricula);
+int  editarAluno(VetorAlunos *v, int matricula, const char *nome, const char *curso,
+                 const char *periodo, const char *email);
+void imprimirAluno(const Aluno *a);
+void listarA(const VetorAlunos *v);
 
 #endif

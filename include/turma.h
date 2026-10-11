@@ -1,17 +1,16 @@
 #ifndef TURMA_H_INCLUDED
 #define TURMA_H_INCLUDED
 #include "util.h"
-#include "aluno.h"
-#include "professor.h"
 #include "disciplina.h"
+#include "professor.h"
 
 typedef struct {
-    int  nTurma;
+    int  codigo;
+    int  codDisciplina;
+    int  matProfessor;
+    char horario[TAM_HORARIO];
     char sala[TAM_SALA];
-    char materia[TAM_DISCIPLINA];
-    int  registroProf;                 /* -1 = sem professor */
-    int  matriculas[MAX_ALUNOS_TURMA];
-    int  qtdAlunos;
+    int  vagas;
 } Turma;
 
 typedef struct {
@@ -20,14 +19,15 @@ typedef struct {
 } VetorTurmas;
 
 void iniciarVetorTurmas(VetorTurmas *vt);
-void iniciarTurma(Turma *t, int nTurma, const char *sala, const char *materia);
-int  buscarturma(VetorTurmas *vt, int nTurma);
-int  inserirTurma(VetorTurmas *vt, Turma t);
-int  removerTurma(VetorTurmas *vt, int nTurma);
-int  adicionarAlunoTurma(VetorTurmas *vt, int nTurma, int matricula);
-int  removerAlunoTurma(VetorTurmas *vt, int nTurma, int matricula);
-void imprimirTurma(const Turma *t, VetorProfessores *vp);
-void listarTurmas(VetorTurmas *vt, VetorProfessores *vp);
-int  designarProfessorTurma(VetorTurmas *vt, int nTurma, int registro);
+int  buscarTurma(const VetorTurmas *vt, int codigo);
+int  cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfessores *vp,
+                    int codigo, int codDisciplina, int matProfessor,
+                    const char *horario, const char *sala, int vagas);
+int  removerTurma(VetorTurmas *vt, int codigo);
+void imprimirTurma(const Turma *t, const VetorDisciplinas *vd, const VetorProfessores *vp,
+                   int ocupadas);
+
+int  professorTemTurma(const VetorTurmas *vt, int matProfessor);
+int  disciplinaTemTurma(const VetorTurmas *vt, int codDisciplina);
 
 #endif

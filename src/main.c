@@ -1,248 +1,223 @@
 #include <stdio.h>
-#include <string.h>
+#include "../include/util.h"
 #include "../include/aluno.h"
 #include "../include/professor.h"
+#include "../include/disciplina.h"
 #include "../include/turma.h"
+#include "../include/matricula.h"
+#include "../include/fila.h"
 
-/* ======================= MENU DE TURMAS ======================= */
+/* Todo o estado do sistema em um unico lugar */
+typedef struct {
+    VetorAlunos      alunos;
+    VetorProfessores professores;
+    VetorDisciplinas disciplinas;
+    VetorTurmas      turmas;
+    VetorMatriculas  matriculas;
+    FilaAtendimento  fila;
+} Sistema;
 
-void menuTurma(VetorTurmas *turmas, VetorAlunos *alunos, VetorProfessores *professores){
-    Turma t;
-    char  sala[TAM_SALA], materia[TAM_DISCIPLINA];
-    int   op, nTurma, matricula, registro;
+/* Convencao: as funcoes dos modulos imprimem os ERROS;
+   os menus imprimem as mensagens de SUCESSO. */
 
-    do{
-        printf("\n----- TURMAS -----\n");
-        printf("1. Inserir\n");
-        printf("2. Remover\n");
-        printf("3. Buscar\n");
-        printf("4. Listar\n");
-        printf("5. Adicionar aluno\n");
-        printf("6. Remover aluno\n");
-        printf("7. Designar professor\n");
-        printf("0. Voltar\n");
-        printf("Opcao: ");
+/* ============================ ALUNOS ============================ */
 
-        if(scanf("%d", &op) != 1){
-            int c;
-            while((c = getchar()) != '\n' && c != EOF){ }
-            op = -1;
-        }
-
-        switch(op){
-
-        case 1:
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            if(buscarturma(turmas, nTurma) != -1){
-                printf("Turma ja cadastrada.\n");
-                break;
-            }
-            printf("Sala: ");
-            scanf(" %19[^\n]", sala);
-            printf("Materia: ");
-            scanf(" %49[^\n]", materia);
-            iniciarTurma(&t, nTurma, sala, materia);
-            if(inserirTurma(turmas, t)){
-                printf("Turma inserida.\n");
-            }
-            break;
-
-        case 2:
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            if(removerTurma(turmas, nTurma)){
-                printf("Turma removida.\n");
-            } else {
-                printf("Turma nao encontrada.\n");
-            }
-            break;
-
-        case 3: {
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            int i = buscarturma(turmas, nTurma);
-            if(i == -1){
-                printf("Turma nao encontrada.\n");
-            } else {
-                imprimirTurma(&turmas->dados[i], professores);
-            }
-            break;
-        }
-
-        case 4:
-            listarTurmas(turmas, professores);
-            break;
-
-        case 5:
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            printf("Matricula do aluno: ");
-            scanf("%d", &matricula);
-            if(buscarA(alunos, matricula) == -1){
-                printf("Aluno nao cadastrado.\n");
-            } else if(adicionarAlunoTurma(turmas, nTurma, matricula)){
-                printf("Aluno adicionado a turma.\n");
-            }
-            break;
-
-        case 6:
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            printf("Matricula do aluno: ");
-            scanf("%d", &matricula);
-            if(removerAlunoTurma(turmas, nTurma, matricula)){
-                printf("Aluno removido da turma.\n");
-            }
-            break;
-
-        case 7:
-            printf("Numero da turma: ");
-            scanf("%d", &nTurma);
-            printf("Registro do professor: ");
-            scanf("%d", &registro);
-            if(buscarP(professores, registro) == -1){
-                printf("Professor nao encontrado.\n");
-            } else if(designarProfessorTurma(turmas, nTurma, registro)){
-                printf("Professor designado.\n");
-            }
-            break;
-
-        case 0:
-            break;
-
-        default:
-            printf("Opcao invalida.\n");
-        }
-    } while(op != 0);
-}
-
-/* ======================= MENU DE ALUNOS ======================= */
-
-void menuAluno(VetorAlunos *alunos){
-    Aluno a;
-    char  disc[TAM_DISCIPLINA];
-    int   op, id, i, prova;
-    float nota;
+static void menuAluno(Sistema *s){
+    int op;
 
     do{
         printf("\n----- ALUNOS -----\n");
-        printf("1. Inserir\n");
+        printf("1. Cadastrar\n");
         printf("2. Remover\n");
-        printf("3. Buscar\n");
+        printf("3. Consultar\n");
         printf("4. Listar\n");
         printf("5. Editar\n");
-        printf("6. Adicionar disciplina\n");
-        printf("7. Remover disciplina\n");
-        printf("8. Lancar nota\n");
         printf("0. Voltar\n");
-        printf("Opcao: ");
-
-        // se digitar letra em vez de numero, descarta a linha
-        if(scanf("%d", &op) != 1){
-            int c;
-            while((c = getchar()) != '\n' && c != EOF){ }
-            op = -1;
-        }
+        op = lerInt("Opcao: ");
 
         switch(op){
 
-        case 1:
-            memset(&a, 0, sizeof(a));
-            printf("Matricula: ");
-            scanf("%d", &a.matricula);
-            if(buscarA(alunos, a.matricula) != -1){
+        case 1: {
+            Aluno a;
+            char nome[TAM_NOME], curso[TAM_CURSO], periodo[TAM_PERIODO], email[TAM_EMAIL];
+            int mat = lerInt("Matricula: ");
+            if(buscarA(&s->alunos, mat) != -1){
                 printf("Aluno ja cadastrado.\n");
                 break;
             }
-            printf("Nome: ");
-            scanf(" %99[^\n]", a.nomeA);
-            printf("Idade: ");
-            scanf("%d", &a.idadeA);
-            printf("Curso: ");
-            scanf(" %49[^\n]", a.curso);
-            a.qtdD = 0;
-
-            inserirA(alunos, a);
+            lerString("Nome: ", nome, sizeof(nome));
+            lerString("Curso: ", curso, sizeof(curso));
+            lerString("Periodo (ex.: 2026.1): ", periodo, sizeof(periodo));
+            lerString("E-mail: ", email, sizeof(email));
+            if(iniciarAluno(&a, mat, nome, curso, periodo, email) && inserirA(&s->alunos, a)){
+                printf("Aluno cadastrado.\n");
+            }
             break;
+        }
 
-        case 2:
-            printf("Matricula: ");
-            scanf("%d", &id);
-            if(removerA(alunos, id)){
+        case 2: {
+            int mat = lerInt("Matricula: ");
+            if(buscarA(&s->alunos, mat) == -1){
+                printf("Aluno nao encontrado.\n");
+                break;
+            }
+            if(alunoTemPendencias(&s->matriculas, mat) > 0){
+                printf("Nao e possivel remover: o aluno possui matriculas em andamento.\n");
+                break;
+            }
+            if(filaContem(&s->fila, mat)){
+                printf("Nao e possivel remover: o aluno esta na fila de atendimento.\n");
+                break;
+            }
+            if(removerA(&s->alunos, mat)){
+                removerMatriculasDoAluno(&s->matriculas, mat);
                 printf("Aluno removido.\n");
             }
-            else{
-                printf("Aluno nao encontrado.\n");
-            }
             break;
+        }
 
-        case 3:
-            printf("Matricula: ");
-            scanf("%d", &id);
-            i = buscarA(alunos, id);
+        case 3: {
+            int i = buscarA(&s->alunos, lerInt("Matricula: "));
             if(i == -1){
                 printf("Aluno nao encontrado.\n");
-            }
-            else{
-                Aluno *ap = &alunos->dados[i];
-                printf("Posicao %d | %s | %d anos | %s | %d disciplinas\n",
-                       i, ap->nomeA, ap->idadeA, ap->curso, ap->qtdD);
+            } else {
+                imprimirAluno(&s->alunos.dados[i]);
             }
             break;
+        }
 
         case 4:
-            listarA(alunos);
+            listarA(&s->alunos);
             break;
 
-        case 5:
-            memset(&a, 0, sizeof(a));
-            printf("Matricula: ");
-            scanf("%d", &id);
-            printf("Novo nome: ");
-            scanf(" %99[^\n]", a.nomeA);
-            printf("Nova idade: ");
-            scanf("%d", &a.idadeA);
-            printf("Novo curso: ");
-            scanf(" %49[^\n]", a.curso);
-            editarAluno(alunos, id, a.nomeA, a.idadeA, a.curso);
-            break;
-
-        case 6:
-            printf("Matricula: ");
-            scanf("%d", &id);
-            printf("Disciplina: ");
-            scanf(" %49[^\n]", disc);
-            if(adicionarDisciplina(alunos, id, disc)){
-                printf("Disciplina adicionada.\n");
+        case 5: {
+            char nome[TAM_NOME], curso[TAM_CURSO], periodo[TAM_PERIODO], email[TAM_EMAIL];
+            int mat = lerInt("Matricula: ");
+            if(buscarA(&s->alunos, mat) == -1){
+                printf("Aluno nao encontrado.\n");
+                break;
+            }
+            lerString("Novo nome: ", nome, sizeof(nome));
+            lerString("Novo curso: ", curso, sizeof(curso));
+            lerString("Novo periodo: ", periodo, sizeof(periodo));
+            lerString("Novo e-mail: ", email, sizeof(email));
+            if(editarAluno(&s->alunos, mat, nome, curso, periodo, email)){
+                printf("Aluno atualizado.\n");
             }
             break;
+        }
 
-        case 7:
-            printf("Matricula: ");
-            scanf("%d", &id);
-            printf("Disciplina: ");
-            scanf(" %49[^\n]", disc);
-            if(removerDisciplina(alunos, id, disc)){
+        case 0:
+            break;
+
+        default:
+            printf("Opcao invalida.\n");
+        }
+    } while(op != 0);
+}
+
+/* ========================== DISCIPLINAS ========================== */
+
+static void menuDisciplina(Sistema *s){
+    int op;
+
+    do{
+        printf("\n----- DISCIPLINAS -----\n");
+        printf("1. Cadastrar\n");
+        printf("2. Remover\n");
+        printf("3. Consultar por codigo\n");
+        printf("4. Listar\n");
+        printf("5. Editar\n");
+        printf("6. Adicionar pre-requisito\n");
+        printf("7. Remover pre-requisito\n");
+        printf("0. Voltar\n");
+        op = lerInt("Opcao: ");
+
+        switch(op){
+
+        case 1: {
+            Disciplina d;
+            char nome[TAM_DISCIPLINA], periodo[TAM_PERIODO];
+            int cod = lerInt("Codigo: ");
+            if(buscarDisciplina(&s->disciplinas, cod) != -1){
+                printf("Codigo ja cadastrado.\n");
+                break;
+            }
+            lerString("Nome: ", nome, sizeof(nome));
+            int carga = lerInt("Carga horaria (h): ");
+            lerString("Periodo (ex.: 2026.1): ", periodo, sizeof(periodo));
+            int vagas = lerInt("Numero de vagas: ");
+            if(iniciarDisciplina(&d, cod, nome, carga, periodo, vagas) &&
+               inserirDisciplina(&s->disciplinas, d)){
+                printf("Disciplina cadastrada.\n");
+            }
+            break;
+        }
+
+        case 2: {
+            int cod = lerInt("Codigo: ");
+            if(buscarDisciplina(&s->disciplinas, cod) == -1){
+                printf("Disciplina nao encontrada.\n");
+                break;
+            }
+            if(disciplinaTemTurma(&s->turmas, cod)){
+                printf("Nao e possivel remover: existem turmas desta disciplina.\n");
+                break;
+            }
+            if(removerDisciplina(&s->disciplinas, cod)){
                 printf("Disciplina removida.\n");
             }
             break;
+        }
 
-        case 8:
-            printf("Matricula: ");
-            scanf("%d", &id);
-            printf("Disciplina: ");
-            scanf(" %49[^\n]", disc);
-            printf("Prova (1 a %d): ", MAX_PROVAS);
-            scanf("%d", &prova);
-            printf("Nota (0 a 10): ");
-            scanf("%f", &nota);
-            if(nota < 0 || nota > 10){
-                printf("Nota invalida.\n");
+        case 3: {
+            int i = buscarDisciplina(&s->disciplinas, lerInt("Codigo: "));
+            if(i == -1){
+                printf("Disciplina nao encontrada.\n");
             } else {
-                lancarNota(alunos, id, disc, prova, nota);
+                imprimirDisciplina(&s->disciplinas.dados[i]);
             }
             break;
+        }
+
+        case 4:
+            listarDisciplinas(&s->disciplinas);
+            break;
+
+        case 5: {
+            char nome[TAM_DISCIPLINA], periodo[TAM_PERIODO];
+            int cod = lerInt("Codigo: ");
+            if(buscarDisciplina(&s->disciplinas, cod) == -1){
+                printf("Disciplina nao encontrada.\n");
+                break;
+            }
+            lerString("Novo nome: ", nome, sizeof(nome));
+            int carga = lerInt("Nova carga horaria (h): ");
+            lerString("Novo periodo: ", periodo, sizeof(periodo));
+            int vagas = lerInt("Novo numero de vagas: ");
+            if(editarDisciplina(&s->disciplinas, cod, nome, carga, periodo, vagas)){
+                printf("Disciplina atualizada.\n");
+            }
+            break;
+        }
+
+        case 6: {
+            int cod = lerInt("Codigo da disciplina: ");
+            int pre = lerInt("Codigo do pre-requisito: ");
+            if(adicionarPrerequisito(&s->disciplinas, cod, pre)){
+                printf("Pre-requisito adicionado.\n");
+            }
+            break;
+        }
+
+        case 7: {
+            int cod = lerInt("Codigo da disciplina: ");
+            int pre = lerInt("Codigo do pre-requisito: ");
+            if(removerPrerequisito(&s->disciplinas, cod, pre)){
+                printf("Pre-requisito removido.\n");
+            }
+            break;
+        }
 
         case 0:
             break;
@@ -250,119 +225,88 @@ void menuAluno(VetorAlunos *alunos){
         default:
             printf("Opcao invalida.\n");
         }
-
     } while(op != 0);
 }
 
-/* ===================== MENU DE PROFESSORES ===================== */
+/* =========================== PROFESSORES =========================== */
 
-void menuProfessor(VetorProfessores *professores){
-    Professor p;
-    char      disc[TAM_DISCIPLINA], horario[TAM_HORARIO];
-    int       op, id, i;
+static void menuProfessor(Sistema *s){
+    int op;
 
     do{
         printf("\n----- PROFESSORES -----\n");
-        printf("1. Inserir\n");
+        printf("1. Cadastrar\n");
         printf("2. Remover\n");
-        printf("3. Buscar\n");
+        printf("3. Consultar\n");
         printf("4. Listar\n");
         printf("5. Editar\n");
-        printf("6. Adicionar aula\n");
-        printf("7. Remover aula\n");
         printf("0. Voltar\n");
-        printf("Opcao: ");
-
-        if(scanf("%d", &op) != 1){
-            int c;
-            while((c = getchar()) != '\n' && c != EOF){ }
-            op = -1;
-        }
+        op = lerInt("Opcao: ");
 
         switch(op){
 
-        case 1:
-            memset(&p, 0, sizeof(p));
-            printf("Registro: ");
-            if(scanf("%d", &p.registro) != 1){
-                printf("Erro: o registro deve ser um numero inteiro.\n");
-                int c;
-                while((c = getchar()) != '\n' && c != EOF){ }
+        case 1: {
+            Professor p;
+            char nome[TAM_NOME], area[TAM_AREA], email[TAM_EMAIL];
+            int mat = lerInt("Matricula: ");
+            if(buscarP(&s->professores, mat) != -1){
+                printf("Professor ja cadastrado.\n");
                 break;
             }
-
-            if(buscarP(professores, p.registro) != -1){
-                printf("Registro ja cadastrado.\n");
-                break;
-            }
-
-            printf("Nome: ");
-            scanf(" %99[^\n]", p.nomeP);
-
-            if(inserirP(professores, p)){
-                printf("Professor inserido com sucesso.\n");
-            } else {
-                printf("Erro ao inserir professor.\n");
+            lerString("Nome: ", nome, sizeof(nome));
+            lerString("Area de atuacao: ", area, sizeof(area));
+            lerString("E-mail: ", email, sizeof(email));
+            if(iniciarProfessor(&p, mat, nome, area, email) && inserirP(&s->professores, p)){
+                printf("Professor cadastrado.\n");
             }
             break;
+        }
 
-        case 2:
-            printf("Registro: ");
-            scanf("%d", &id);
-            if(removerP(professores, id)){
+        case 2: {
+            int mat = lerInt("Matricula: ");
+            if(buscarP(&s->professores, mat) == -1){
+                printf("Professor nao encontrado.\n");
+                break;
+            }
+            if(professorTemTurma(&s->turmas, mat)){
+                printf("Nao e possivel remover: o professor possui turmas.\n");
+                break;
+            }
+            if(removerP(&s->professores, mat)){
                 printf("Professor removido.\n");
             }
-            else{
-                printf("Professor nao encontrado.\n");
-            }
             break;
+        }
 
-        case 3:
-            printf("Registro: ");
-            scanf("%d", &id);
-            i = buscarP(professores, id);
+        case 3: {
+            int i = buscarP(&s->professores, lerInt("Matricula: "));
             if(i == -1){
                 printf("Professor nao encontrado.\n");
             } else {
-                printf("Posicao %d | %s | %d aulas\n", i,
-                       professores->dados[i].nomeP, professores->dados[i].qtdAulas);
+                imprimirProfessor(&s->professores.dados[i]);
             }
             break;
+        }
 
         case 4:
-            listarP(professores);
+            listarP(&s->professores);
             break;
 
-        case 5:
-            memset(&p, 0, sizeof(p));
-            printf("Registro: ");
-            scanf("%d", &id);
-            printf("Novo nome: ");
-            scanf(" %99[^\n]", p.nomeP);
-            editarProfessor(professores, id, p.nomeP);
-            break;
-
-        case 6:
-            printf("Registro: ");
-            scanf("%d", &id);
-            printf("Disciplina: ");
-            scanf(" %49[^\n]", disc);
-            printf("Horario (ex.: Seg 08:00-10:00): ");
-            scanf(" %29[^\n]", horario);
-            if(adicionarAula(professores, id, disc, horario)){
-                printf("Aula adicionada.\n");
+        case 5: {
+            char nome[TAM_NOME], area[TAM_AREA], email[TAM_EMAIL];
+            int mat = lerInt("Matricula: ");
+            if(buscarP(&s->professores, mat) == -1){
+                printf("Professor nao encontrado.\n");
+                break;
+            }
+            lerString("Novo nome: ", nome, sizeof(nome));
+            lerString("Nova area de atuacao: ", area, sizeof(area));
+            lerString("Novo e-mail: ", email, sizeof(email));
+            if(editarProfessor(&s->professores, mat, nome, area, email)){
+                printf("Professor atualizado.\n");
             }
             break;
-
-        case 7:
-            printf("Registro: ");
-            scanf("%d", &id);
-            printf("Disciplina: ");
-            scanf(" %49[^\n]", disc);
-            if(removerAula(professores, id, disc)){
-                printf("Aula removida.\n");
-            }
-            break;
+        }
 
         case 0:
             break;
@@ -370,53 +314,288 @@ void menuProfessor(VetorProfessores *professores){
         default:
             printf("Opcao invalida.\n");
         }
-
     } while(op != 0);
 }
 
-/* ============================ MAIN ============================ */
+/* ============================= TURMAS ============================= */
 
-int main(void){
-    static VetorAlunos      alunos;
-    static VetorProfessores professores;
-    static VetorTurmas      turmas;
+static void menuTurma(Sistema *s){
     int op;
 
-    iniciarA(&alunos);
-    iniciarP(&professores);
-    iniciarVetorTurmas(&turmas);
-
     do{
-        printf("\n===== SISTEMA ACADEMICO =====\n");
-        printf("1. Menu de alunos\n");
-        printf("2. Menu de professores\n");
-        printf("3. Menu de turmas\n");
-        printf("0. Sair\n");
-        printf("Opcao: ");
-
-        if(scanf("%d", &op) != 1){
-            int c;
-            while((c = getchar()) != '\n' && c != EOF){ }
-            op = -1;
-        }
+        printf("\n----- TURMAS -----\n");
+        printf("1. Cadastrar\n");
+        printf("2. Remover\n");
+        printf("3. Consultar\n");
+        printf("4. Listar\n");
+        printf("0. Voltar\n");
+        op = lerInt("Opcao: ");
 
         switch(op){
-        case 1:
-            menuAluno(&alunos);
+
+        case 1: {
+            char horario[TAM_HORARIO], sala[TAM_SALA];
+            int cod  = lerInt("Codigo da turma: ");
+            if(buscarTurma(&s->turmas, cod) != -1){
+                printf("Turma ja cadastrada.\n");
+                break;
+            }
+            int disc = lerInt("Codigo da disciplina: ");
+            int prof = lerInt("Matricula do professor: ");
+            lerString("Horario (ex.: Seg 08:00-10:00): ", horario, sizeof(horario));
+            lerString("Sala: ", sala, sizeof(sala));
+            int vagas = lerInt("Numero de vagas: ");
+            if(cadastrarTurma(&s->turmas, &s->disciplinas, &s->professores,
+                              cod, disc, prof, horario, sala, vagas)){
+                printf("Turma cadastrada.\n");
+            }
             break;
-        case 2:
-            menuProfessor(&professores);
+        }
+
+        case 2: {
+            int cod = lerInt("Codigo da turma: ");
+            if(buscarTurma(&s->turmas, cod) == -1){
+                printf("Turma nao encontrada.\n");
+                break;
+            }
+            if(contarAlunosTurma(&s->matriculas, cod) > 0){
+                printf("Nao e possivel remover: a turma possui alunos matriculados.\n");
+                break;
+            }
+            if(removerTurma(&s->turmas, cod)){
+                printf("Turma removida.\n");
+            }
             break;
-        case 3:
-            menuTurma(&turmas, &alunos, &professores);
+        }
+
+        case 3: {
+            int cod = lerInt("Codigo da turma: ");
+            int i = buscarTurma(&s->turmas, cod);
+            if(i == -1){
+                printf("Turma nao encontrada.\n");
+            } else {
+                imprimirTurma(&s->turmas.dados[i], &s->disciplinas, &s->professores,
+                              contarAlunosTurma(&s->matriculas, cod));
+            }
             break;
+        }
+
+        case 4:
+            if(s->turmas.tamanho == 0){
+                printf("Nenhuma turma cadastrada.\n");
+            }
+            for(int i = 0; i < s->turmas.tamanho; i++){
+                imprimirTurma(&s->turmas.dados[i], &s->disciplinas, &s->professores,
+                              contarAlunosTurma(&s->matriculas, s->turmas.dados[i].codigo));
+            }
+            break;
+
         case 0:
-            printf("Encerrando...\n");
             break;
+
         default:
             printf("Opcao invalida.\n");
         }
+    } while(op != 0);
+}
 
+/* ====================== MATRICULAS, NOTAS E FREQUENCIA ====================== */
+
+static void menuMatricula(Sistema *s){
+    int op;
+
+    do{
+        printf("\n----- MATRICULAS -----\n");
+        printf("1. Matricular aluno\n");
+        printf("2. Cancelar matricula\n");
+        printf("3. Registrar nota\n");
+        printf("4. Registrar frequencia\n");
+        printf("0. Voltar\n");
+        op = lerInt("Opcao: ");
+
+        switch(op){
+
+        case 1: {
+            char semestre[TAM_SEMESTRE];
+            int mat   = lerInt("Matricula do aluno: ");
+            int turma = lerInt("Codigo da turma: ");
+            lerString("Semestre (ex.: 2026.1): ", semestre, sizeof(semestre));
+            if(matricularAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas,
+                               mat, turma, semestre)){
+                printf("Aluno matriculado.\n");
+            }
+            break;
+        }
+
+        case 2: {
+            int mat   = lerInt("Matricula do aluno: ");
+            int turma = lerInt("Codigo da turma: ");
+            if(cancelarMatricula(&s->matriculas, mat, turma)){
+                printf("Matricula cancelada.\n");
+            }
+            break;
+        }
+
+        case 3: {
+            int mat   = lerInt("Matricula do aluno: ");
+            int turma = lerInt("Codigo da turma: ");
+            float nota = lerFloat("Nota (0 a 10): ");
+            if(registrarNota(&s->matriculas, mat, turma, nota)){
+                int i = buscarMatricula(&s->matriculas, mat, turma);
+                printf("Nota registrada. Situacao: %s\n",
+                       nomeSituacao(s->matriculas.dados[i].situacao));
+            }
+            break;
+        }
+
+        case 4: {
+            int mat   = lerInt("Matricula do aluno: ");
+            int turma = lerInt("Codigo da turma: ");
+            float freq = lerFloat("Frequencia (0 a 100): ");
+            if(registrarFrequencia(&s->matriculas, mat, turma, freq)){
+                int i = buscarMatricula(&s->matriculas, mat, turma);
+                printf("Frequencia registrada. Situacao: %s\n",
+                       nomeSituacao(s->matriculas.dados[i].situacao));
+            }
+            break;
+        }
+
+        case 0:
+            break;
+
+        default:
+            printf("Opcao invalida.\n");
+        }
+    } while(op != 0);
+}
+
+/* ======================= FILA DE ATENDIMENTO ======================= */
+
+static void menuFila(Sistema *s){
+    int op;
+
+    do{
+        printf("\n----- FILA DE ATENDIMENTO -----\n");
+        printf("1. Inserir aluno na fila\n");
+        printf("2. Atender proximo\n");
+        printf("3. Ver proximo\n");
+        printf("4. Listar fila\n");
+        printf("0. Voltar\n");
+        op = lerInt("Opcao: ");
+
+        switch(op){
+
+        case 1:
+            if(entrarNaFila(&s->fila, &s->alunos, lerInt("Matricula do aluno: "))){
+                printf("Aluno inserido na fila (posicao %d).\n", s->fila.tamanho);
+            }
+            break;
+
+        case 2:
+            atenderProximo(&s->fila, &s->alunos);
+            break;
+
+        case 3:
+            proximoDaFila(&s->fila, &s->alunos);
+            break;
+
+        case 4:
+            listarFila(&s->fila, &s->alunos);
+            break;
+
+        case 0:
+            break;
+
+        default:
+            printf("Opcao invalida.\n");
+        }
+    } while(op != 0);
+}
+
+/* ============================ CONSULTAS ============================ */
+
+static void menuConsultas(Sistema *s){
+    int op;
+
+    do{
+        printf("\n----- CONSULTAS -----\n");
+        printf("1. Situacao academica de um aluno\n");
+        printf("2. Alunos de uma turma\n");
+        printf("3. Disciplinas de um aluno\n");
+        printf("4. Historico academico\n");
+        printf("5. Pre-requisitos de uma disciplina\n");
+        printf("0. Voltar\n");
+        op = lerInt("Opcao: ");
+
+        switch(op){
+
+        case 1:
+            consultarSituacaoAcademica(&s->matriculas, &s->alunos, lerInt("Matricula do aluno: "));
+            break;
+
+        case 2:
+            listarAlunosTurma(&s->matriculas, &s->alunos, &s->turmas, lerInt("Codigo da turma: "));
+            break;
+
+        case 3:
+            listarDisciplinasAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas,
+                                   lerInt("Matricula do aluno: "));
+            break;
+
+        case 4:
+            historicoAcademico(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas,
+                               lerInt("Matricula do aluno: "));
+            break;
+
+        case 5:
+            listarPrerequisitos(&s->disciplinas, lerInt("Codigo da disciplina: "));
+            break;
+
+        case 0:
+            break;
+
+        default:
+            printf("Opcao invalida.\n");
+        }
+    } while(op != 0);
+}
+
+/* ============================== MAIN ============================== */
+
+int main(void){
+    static Sistema sis;
+    int op;
+
+    iniciarA(&sis.alunos);
+    iniciarP(&sis.professores);
+    iniciarVetorDisciplinas(&sis.disciplinas);
+    iniciarVetorTurmas(&sis.turmas);
+    iniciarVetorMatriculas(&sis.matriculas);
+    iniciarFila(&sis.fila);
+
+    do{
+        printf("\n===== SISTEMA ACADEMICO =====\n");
+        printf("1. Alunos\n");
+        printf("2. Disciplinas\n");
+        printf("3. Professores\n");
+        printf("4. Turmas\n");
+        printf("5. Matriculas, notas e frequencia\n");
+        printf("6. Fila de atendimento\n");
+        printf("7. Consultas\n");
+        printf("0. Sair\n");
+        op = lerInt("Opcao: ");
+
+        switch(op){
+        case 1: menuAluno(&sis);       break;
+        case 2: menuDisciplina(&sis);  break;
+        case 3: menuProfessor(&sis);   break;
+        case 4: menuTurma(&sis);       break;
+        case 5: menuMatricula(&sis);   break;
+        case 6: menuFila(&sis);        break;
+        case 7: menuConsultas(&sis);   break;
+        case 0: printf("Encerrando...\n"); break;
+        default: printf("Opcao invalida.\n");
+        }
     } while(op != 0);
 
     return 0;

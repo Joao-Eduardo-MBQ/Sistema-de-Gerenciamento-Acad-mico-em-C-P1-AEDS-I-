@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include "../include/turma.h"
-#include "../include/aluno.h"
-#include "../include/professor.h"
 
 void iniciarVetorTurmas(VetorTurmas *vt){
     if(vt == NULL){
@@ -13,36 +10,49 @@ void iniciarVetorTurmas(VetorTurmas *vt){
     vt->tamanho = 0;
 }
 
-void iniciarTurma(Turma *t, int nTurma, const char *sala, const char *materia){
-    if(t == NULL || sala == NULL || materia == NULL){
-        printf("Erro: dados invalidos.\n");
-        return;
-    }
-
-    memset(t, 0, sizeof(*t));
-    t->nTurma = nTurma;
-    strncpy(t->sala, sala, TAM_SALA - 1);
-    strncpy(t->materia, materia, TAM_DISCIPLINA - 1);
-    t->registroProf = -1;
-    t->qtdAlunos = 0;
-}
-
-int buscarturma(VetorTurmas *vt, int nTurma){
+int buscarTurma(const VetorTurmas *vt, int codigo){
     if(vt == NULL){
         return -1;
     }
 
     for(int i = 0; i < vt->tamanho; i++){
-        if(vt->dados[i].nTurma == nTurma){
+        if(vt->dados[i].codigo == codigo){
             return i;
         }
     }
     return -1;
 }
 
-int inserirTurma(VetorTurmas *vt, Turma t){
-    if(vt == NULL){
-        printf("Erro: vetor invalido.\n");
+int cadastrarTurma(VetorTurmas *vt, const VetorDisciplinas *vd, const VetorProfessores *vp,
+                   int codigo, int codDisciplina, int matProfessor,
+                   const char *horario, const char *sala, int vagas){
+    if(vt == NULL || vd == NULL || vp == NULL || horario == NULL || sala == NULL){
+        printf("Erro: dados invalidos.\n");
+        return 0;
+    }
+
+    if(codigo <= 0){
+        printf("Codigo de turma invalido.\n");
+        return 0;
+    }
+
+    if(buscarTurma(vt, codigo) != -1){
+        printf("Turma ja cadastrada.\n");
+        return 0;
+    }
+
+    if(buscarDisciplina(vd, codDisciplina) == -1){
+        printf("Disciplina %d nao encontrada.\n", codDisciplina);
+        return 0;
+    }
+
+    if(buscarP(vp, matProfessor) == -1){
+        printf("Professor %d nao encontrado.\n", matProfessor);
+        return 0;
+    }
+
+    if(vagas <= 0){
+        printf("Numero de vagas invalido.\n");
         return 0;
     }
 
@@ -51,20 +61,44 @@ int inserirTurma(VetorTurmas *vt, Turma t){
         return 0;
     }
 
-    vt->dados[vt->tamanho] = t;
+    /* conflitos de horario */
+    for(int i = 0; i < vt->tamanho; i++){
+        const Turma *o = &vt->dados[i];
+        if(strcmp(o->horario, horario) != 0){
+            continue;
+        }
+        if(strcmp(o->sala, sala) == 0){
+            printf("A sala %s ja esta ocupada nesse horario (turma %d).\n", sala, o->codigo);
+            return 0;
+        }
+        if(o->matProfessor == matProfessor){
+            printf("O professor ja leciona nesse horario (turma %d).\n", o->codigo);
+            return 0;
+        }
+    }
+
+    Turma *t = &vt->dados[vt->tamanho];
+    memset(t, 0, sizeof(*t));
+    t->codigo = codigo;
+    t->codDisciplina = codDisciplina;
+    t->matProfessor = matProfessor;
+    copiarStr(t->horario, sizeof(t->horario), horario);
+    copiarStr(t->sala,    sizeof(t->sala),    sala);
+    t->vagas = vagas;
     vt->tamanho++;
     return 1;
 }
 
-int removerTurma(VetorTurmas *vt, int nTurma){
+int removerTurma(VetorTurmas *vt, int codigo){
     if(vt == NULL){
         printf("Erro: vetor invalido.\n");
         return 0;
     }
 
-    int i = buscarturma(vt, nTurma);
+    int i = buscarTurma(vt, codigo);
     if(i == -1){
-        return 0;               /* o menu ja avisa que nao encontrou */
+        printf("Turma nao encontrada.\n");
+        return 0;
     }
 
     for(int j = i; j < vt->tamanho - 1; j++){
@@ -74,109 +108,48 @@ int removerTurma(VetorTurmas *vt, int nTurma){
     return 1;
 }
 
-int adicionarAlunoTurma(VetorTurmas *vt, int nTurma, int matricula){
-    if(vt == NULL){
-        printf("Erro: vetor invalido.\n");
-        return 0;
+void imprimirTurma(const Turma *t, const VetorDisciplinas *vd, const VetorProfessores *vp,
+                   int ocupadas){
+    const char *nomeDisc = "(removida)";
+    const char *nomeProf = "(removido)";
+
+    int d = buscarDisciplina(vd, t->codDisciplina);
+    if(d != -1){
+        nomeDisc = vd->dados[d].nome;
     }
 
-    int i = buscarturma(vt, nTurma);
-    if(i == -1){
-        printf("Turma nao encontrada.\n");
-        return 0;
+    int p = buscarP(vp, t->matProfessor);
+    if(p != -1){
+        nomeProf = vp->dados[p].nome;
     }
 
-    Turma *t = &vt->dados[i];
-
-    if(t->qtdAlunos >= MAX_ALUNOS_TURMA){
-        printf("Turma cheia.\n");
-        return 0;
-    }
-
-    for(int j = 0; j < t->qtdAlunos; j++){
-        if(t->matriculas[j] == matricula){
-            printf("Aluno ja matriculado nesta turma.\n");
-            return 0;
-        }
-    }
-
-    t->matriculas[t->qtdAlunos] = matricula;
-    t->qtdAlunos++;
-    return 1;
+    printf("Turma %d | Disciplina: %d - %s | Prof.: %s | Horario: %s | Sala: %s | Vagas: %d/%d\n",
+           t->codigo, t->codDisciplina, nomeDisc, nomeProf, t->horario, t->sala,
+           ocupadas, t->vagas);
 }
 
-int removerAlunoTurma(VetorTurmas *vt, int nTurma, int matricula){
+int professorTemTurma(const VetorTurmas *vt, int matProfessor){
     if(vt == NULL){
-        printf("Erro: vetor invalido.\n");
         return 0;
-    }
-
-    int i = buscarturma(vt, nTurma);
-    if(i == -1){
-        printf("Turma nao encontrada.\n");
-        return 0;
-    }
-
-    Turma *t = &vt->dados[i];
-
-    for(int j = 0; j < t->qtdAlunos; j++){
-        if(t->matriculas[j] == matricula){
-            for(int k = j; k < t->qtdAlunos - 1; k++){
-                t->matriculas[k] = t->matriculas[k + 1];
-            }
-            t->qtdAlunos--;
-            return 1;           /* o menu imprime a mensagem de sucesso */
-        }
-    }
-
-    printf("Aluno nao encontrado nesta turma.\n");
-    return 0;
-}
-
-void imprimirTurma(const Turma *t, VetorProfessores *vp){
-    char nomeProf[TAM_NOME] = "(nenhum)";
-
-    if(t->registroProf != -1){
-        int p = buscarP(vp, t->registroProf);
-        if(p != -1){
-            strncpy(nomeProf, vp->dados[p].nomeP, TAM_NOME - 1);
-            nomeProf[TAM_NOME - 1] = '\0';
-        } else {
-            strcpy(nomeProf, "(removido)");
-        }
-    }
-
-    printf("\nTurma %d | Sala: %s | Materia: %s | Professor: %s | Qtd Alunos: %d\n",
-           t->nTurma, t->sala, t->materia, nomeProf, t->qtdAlunos);
-
-    for(int j = 0; j < t->qtdAlunos; j++){
-        printf("Aluno %d: Matricula %d\n", j + 1, t->matriculas[j]);
-    }
-}
-
-void listarTurmas(VetorTurmas *vt, VetorProfessores *vp){
-    if(vt == NULL){
-        printf("Erro: vetor invalido.\n");
-        return;
     }
 
     for(int i = 0; i < vt->tamanho; i++){
-        imprimirTurma(&vt->dados[i], vp);
+        if(vt->dados[i].matProfessor == matProfessor){
+            return 1;
+        }
     }
+    return 0;
 }
 
-int designarProfessorTurma(VetorTurmas *vt, int nTurma, int registro){
+int disciplinaTemTurma(const VetorTurmas *vt, int codDisciplina){
     if(vt == NULL){
-        printf("Erro: vetor invalido.\n");
         return 0;
     }
 
-    int i = buscarturma(vt, nTurma);
-    if(i == -1){
-        printf("Turma nao encontrada.\n");
-        return 0;
+    for(int i = 0; i < vt->tamanho; i++){
+        if(vt->dados[i].codDisciplina == codDisciplina){
+            return 1;
+        }
     }
-
-    vt->dados[i].registroProf = registro;
-    return 1;
+    return 0;
 }
