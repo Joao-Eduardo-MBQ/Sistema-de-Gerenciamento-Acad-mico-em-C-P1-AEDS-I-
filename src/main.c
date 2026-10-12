@@ -16,6 +16,14 @@ typedef struct {
     FilaAtendimento  fila;
 } Sistema;
 
+static int semNumero(const char *s){
+    if(strpbrk(s, "0123456789")){
+        printf("Erro: o texto possui numero!\n");
+        return 0;
+    }
+    return 1;
+}
+
 static int lerOpcao(void){
     int op = -1;
     int r = scanf("%d", &op);
@@ -61,10 +69,13 @@ static void menuAluno(Sistema *s){
                 printf("Aluno ja cadastrado.\n");
                 break;
             }
+
             printf("Nome: ");
             scanf(" %99[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Curso: ");
             scanf(" %49[^\n]", curso);
+            if(!semNumero(curso)) break;
             printf("Periodo (ex.: 2026.1): ");
             scanf(" %9[^\n]", periodo);
             printf("E-mail: ");
@@ -131,8 +142,10 @@ static void menuAluno(Sistema *s){
             }
             printf("Novo nome: ");
             scanf(" %99[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Novo curso: ");
             scanf(" %49[^\n]", curso);
+            if(!semNumero(curso)) break;
             printf("Novo periodo: ");
             scanf(" %9[^\n]", periodo);
             printf("Novo e-mail: ");
@@ -186,6 +199,7 @@ static void menuDisciplina(Sistema *s){
             }
             printf("Nome: ");
             scanf(" %49[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Carga horaria (h): ");
             scanf("%d", &carga);
             printf("Periodo (ex.: 2, 3...): ");
@@ -248,6 +262,7 @@ static void menuDisciplina(Sistema *s){
             }
             printf("Novo nome: ");
             scanf(" %49[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Nova carga horaria (h): ");
             scanf("%d", &carga);
             printf("Novo periodo: ");
@@ -327,8 +342,10 @@ static void menuProfessor(Sistema *s){
             }
             printf("Nome: ");
             scanf(" %99[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Area de atuacao: ");
             scanf(" %49[^\n]", area);
+            if(!semNumero(area)) break;
             printf("E-mail: ");
             scanf(" %99[^\n]", email);
 
@@ -387,8 +404,10 @@ static void menuProfessor(Sistema *s){
             }
             printf("Novo nome: ");
             scanf(" %99[^\n]", nome);
+            if(!semNumero(nome)) break;
             printf("Nova area de atuacao: ");
             scanf(" %49[^\n]", area);
+            if(!semNumero(area)) break;
             printf("Novo e-mail: ");
             scanf(" %99[^\n]", email);
 

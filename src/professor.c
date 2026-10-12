@@ -117,7 +117,7 @@ void imprimirProfessor(const Professor *p){
 void listarP(const VetorProfessores *v){
     if(v == NULL){
         printf("Erro: vetor invalido.\n");
-        return;
+        return; 
     }
 
     if(v->tamanho == 0){
