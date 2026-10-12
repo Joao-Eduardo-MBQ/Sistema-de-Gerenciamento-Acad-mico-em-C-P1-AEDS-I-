@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "../include/util.h"
 #include "../include/aluno.h"
 #include "../include/professor.h"
@@ -19,6 +20,17 @@ typedef struct {
 static int semNumero(const char *s){
     if(strpbrk(s, "0123456789")){
         printf("Erro: o texto possui numero!\n");
+        return 0;
+    }
+    return 1;
+}
+
+static int lerInt(int *dest){
+    int c;
+
+    if(scanf("%d", dest) != 1){
+        while((c = getchar()) != '\n' && c != EOF){ }
+        printf("Erro: digite apenas numeros!\n");
         return 0;
     }
     return 1;
@@ -64,12 +76,11 @@ static void menuAluno(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarA(&s->alunos, mat) != -1){
                 printf("Aluno ja cadastrado.\n");
                 break;
             }
-
             printf("Nome: ");
             scanf(" %99[^\n]", nome);
             if(!semNumero(nome)) break;
@@ -91,7 +102,7 @@ static void menuAluno(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarA(&s->alunos, mat) == -1){
                 printf("Aluno nao encontrado.\n");
                 break;
@@ -115,7 +126,7 @@ static void menuAluno(Sistema *s){
             int mat = 0, i;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             i = buscarA(&s->alunos, mat);
             if(i == -1){
                 printf("Aluno nao encontrado.\n");
@@ -135,7 +146,7 @@ static void menuAluno(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarA(&s->alunos, mat) == -1){
                 printf("Aluno nao encontrado.\n");
                 break;
@@ -192,7 +203,7 @@ static void menuDisciplina(Sistema *s){
             int cod = 0, carga = 0, vagas = 0;
 
             printf("Codigo: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             if(buscarDisciplina(&s->disciplinas, cod) != -1){
                 printf("Codigo ja cadastrado.\n");
                 break;
@@ -201,11 +212,11 @@ static void menuDisciplina(Sistema *s){
             scanf(" %49[^\n]", nome);
             if(!semNumero(nome)) break;
             printf("Carga horaria (h): ");
-            scanf("%d", &carga);
+            if(!lerInt(&carga)) break;
             printf("Periodo (ex.: 2, 3...): ");
             scanf(" %9[^\n]", periodo);
             printf("Numero de vagas: ");
-            scanf("%d", &vagas);
+            if(!lerInt(&vagas)) break;
 
             if(iniciarDisciplina(&d, cod, nome, carga, periodo, vagas) && inserirDisciplina(&s->disciplinas, d)){
                 printf("Disciplina cadastrada.\n");
@@ -217,7 +228,7 @@ static void menuDisciplina(Sistema *s){
             int cod = 0;
 
             printf("Codigo: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             if(buscarDisciplina(&s->disciplinas, cod) == -1){
                 printf("Disciplina nao encontrada.\n");
                 break;
@@ -236,7 +247,7 @@ static void menuDisciplina(Sistema *s){
             int cod = 0, i;
 
             printf("Codigo: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             i = buscarDisciplina(&s->disciplinas, cod);
             if(i == -1){
                 printf("Disciplina nao encontrada.\n");
@@ -255,7 +266,7 @@ static void menuDisciplina(Sistema *s){
             int cod = 0, carga = 0, vagas = 0;
 
             printf("Codigo: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             if(buscarDisciplina(&s->disciplinas, cod) == -1){
                 printf("Disciplina nao encontrada.\n");
                 break;
@@ -264,11 +275,11 @@ static void menuDisciplina(Sistema *s){
             scanf(" %49[^\n]", nome);
             if(!semNumero(nome)) break;
             printf("Nova carga horaria (h): ");
-            scanf("%d", &carga);
+            if(!lerInt(&carga)) break;
             printf("Novo periodo: ");
             scanf(" %9[^\n]", periodo);
             printf("Novo numero de vagas: ");
-            scanf("%d", &vagas);
+            if(!lerInt(&vagas)) break;
 
             if(editarDisciplina(&s->disciplinas, cod, nome, carga, periodo, vagas)){
                 printf("Disciplina atualizada.\n");
@@ -280,9 +291,9 @@ static void menuDisciplina(Sistema *s){
             int cod = 0, pre = 0;
 
             printf("Codigo da disciplina: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             printf("Codigo do pre-requisito: ");
-            scanf("%d", &pre);
+            if(!lerInt(&pre)) break;
             if(adicionarPrerequisito(&s->disciplinas, cod, pre)){
                 printf("Pre-requisito adicionado.\n");
             }
@@ -293,9 +304,9 @@ static void menuDisciplina(Sistema *s){
             int cod = 0, pre = 0;
 
             printf("Codigo da disciplina: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             printf("Codigo do pre-requisito: ");
-            scanf("%d", &pre);
+            if(!lerInt(&pre)) break;
             if(removerPrerequisito(&s->disciplinas, cod, pre)){
                 printf("Pre-requisito removido.\n");
             }
@@ -335,7 +346,7 @@ static void menuProfessor(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarP(&s->professores, mat) != -1){
                 printf("Professor ja cadastrado.\n");
                 break;
@@ -359,7 +370,7 @@ static void menuProfessor(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarP(&s->professores, mat) == -1){
                 printf("Professor nao encontrado.\n");
                 break;
@@ -378,7 +389,7 @@ static void menuProfessor(Sistema *s){
             int mat = 0, i;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             i = buscarP(&s->professores, mat);
             if(i == -1){
                 printf("Professor nao encontrado.\n");
@@ -397,7 +408,7 @@ static void menuProfessor(Sistema *s){
             int mat = 0;
 
             printf("Matricula: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(buscarP(&s->professores, mat) == -1){
                 printf("Professor nao encontrado.\n");
                 break;
@@ -448,21 +459,21 @@ static void menuTurma(Sistema *s){
             int cod = 0, disc = 0, prof = 0, vagas = 0;
 
             printf("Codigo da turma: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             if(buscarTurma(&s->turmas, cod) != -1){
                 printf("Turma ja cadastrada.\n");
                 break;
             }
             printf("Codigo da disciplina: ");
-            scanf("%d", &disc);
+            if(!lerInt(&disc)) break;
             printf("Matricula do professor: ");
-            scanf("%d", &prof);
+            if(!lerInt(&prof)) break;
             printf("Horario (ex.: Seg 08:00-10:00): ");
             scanf(" %29[^\n]", horario);
             printf("Sala: ");
             scanf(" %19[^\n]", sala);
             printf("Numero de vagas: ");
-            scanf("%d", &vagas);
+            if(!lerInt(&vagas)) break;
 
             if(cadastrarTurma(&s->turmas, &s->disciplinas, &s->professores,
                               cod, disc, prof, horario, sala, vagas)){
@@ -475,7 +486,7 @@ static void menuTurma(Sistema *s){
             int cod = 0;
 
             printf("Codigo da turma: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             if(buscarTurma(&s->turmas, cod) == -1){
                 printf("Turma nao encontrada.\n");
                 break;
@@ -494,7 +505,7 @@ static void menuTurma(Sistema *s){
             int cod = 0, i;
 
             printf("Codigo da turma: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             i = buscarTurma(&s->turmas, cod);
             if(i == -1){
                 printf("Turma nao encontrada.\n");
@@ -546,9 +557,9 @@ static void menuMatricula(Sistema *s){
             int mat = 0, turma = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             printf("Codigo da turma: ");
-            scanf("%d", &turma);
+            if(!lerInt(&turma)) break;
             printf("Semestre (ex.: 2, 3 ...): ");
             scanf(" %9[^\n]", semestre);
 
@@ -562,9 +573,9 @@ static void menuMatricula(Sistema *s){
             int mat = 0, turma = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             printf("Codigo da turma: ");
-            scanf("%d", &turma);
+            if(!lerInt(&turma)) break;
 
             if(cancelarMatricula(&s->matriculas, mat, turma)){
                 printf("Matricula cancelada.\n");
@@ -577,9 +588,9 @@ static void menuMatricula(Sistema *s){
             float nota = -1.0f;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             printf("Codigo da turma: ");
-            scanf("%d", &turma);
+            if(!lerInt(&turma)) break;
             printf("Nota (0 a 10, use ponto): ");
             scanf("%f", &nota);
 
@@ -595,9 +606,9 @@ static void menuMatricula(Sistema *s){
             float freq = -1.0f;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             printf("Codigo da turma: ");
-            scanf("%d", &turma);
+            if(!lerInt(&turma)) break;
             printf("Frequencia (0 a 100, use ponto): ");
             scanf("%f", &freq);
 
@@ -638,7 +649,7 @@ static void menuFila(Sistema *s){
             int mat = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             if(entrarNaFila(&s->fila, &s->alunos, mat)){
                 printf("Aluno inserido na fila (posicao %d).\n", s->fila.tamanho);
             }
@@ -688,7 +699,7 @@ static void menuConsultas(Sistema *s){
             int mat = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             consultarSituacaoAcademica(&s->matriculas, &s->alunos, mat);
             break;
         }
@@ -697,7 +708,7 @@ static void menuConsultas(Sistema *s){
             int turma = 0;
 
             printf("Codigo da turma: ");
-            scanf("%d", &turma);
+            if(!lerInt(&turma)) break;
             listarAlunosTurma(&s->matriculas, &s->alunos, &s->turmas, turma);
             break;
         }
@@ -706,7 +717,7 @@ static void menuConsultas(Sistema *s){
             int mat = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             listarDisciplinasAluno(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas, mat);
             break;
         }
@@ -715,7 +726,7 @@ static void menuConsultas(Sistema *s){
             int mat = 0;
 
             printf("Matricula do aluno: ");
-            scanf("%d", &mat);
+            if(!lerInt(&mat)) break;
             historicoAcademico(&s->matriculas, &s->alunos, &s->turmas, &s->disciplinas, mat);
             break;
         }
@@ -724,7 +735,7 @@ static void menuConsultas(Sistema *s){
             int cod = 0;
 
             printf("Codigo da disciplina: ");
-            scanf("%d", &cod);
+            if(!lerInt(&cod)) break;
             listarPrerequisitos(&s->disciplinas, cod);
             break;
         }
